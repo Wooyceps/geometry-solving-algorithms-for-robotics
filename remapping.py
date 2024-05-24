@@ -7,8 +7,7 @@ TARGET_HEIGHT = 5
 w_ratio = WIDTH // TARGET_WIDTH # 10
 h_ratio = HEIGHT // TARGET_HEIGHT # 10
 
-def populate(i,j):
-    if
+# def populate(i,j):
 
 
 
