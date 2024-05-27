@@ -1,36 +1,37 @@
 import numpy as np
 
-WIDTH = 100
-HEIGHT = 50
+ROWS, COLS = 50, 100
 
-TARGET_WIDTH = 10
-TARGET_HEIGHT = 5
-
-w_ratio = WIDTH // TARGET_WIDTH  # 10
-h_ratio = HEIGHT // TARGET_HEIGHT  # 10
+TARG_ROWS, TARG_COLS = 5, 10
 
 
-# def populate(i,j):
+def map_to_smaller(input_grid, target_height, target_width):
+    # Calculate the width and height ratios
+    height, width = input_grid.shape
+    w_ratio = width // target_width
+    h_ratio = height // target_height
 
-def map_to_smaller(input_grid, target_width, target_height):
-    w_ratio = WIDTH // target_width  # 10
-    h_ratio = HEIGHT // target_height  # 10
-    output_grid = np.empty((target_width, target_height))
-    for i in range(target_width):
-        for j in range(target_height):
-            info = []
-            for k in range(i*w_ratio, (i+1)*w_ratio):
-                for l in range(i*h_ratio, (i+1)*h_ratio):
-                    info.append(1) if input_grid[k][l] else info.append(0)
-            output_grid[i][j] = 1 if 1 in info else 0
+    # Initialize the output grid
+    output_grid = np.zeros((target_height, target_width))
+
+    # Loop over the cells in the output grid
+    for i in range(target_height):
+        for j in range(target_width):
+            # Calculate the corresponding square in the input grid
+            start_i = i * h_ratio
+            end_i = (i + 1) * h_ratio
+            start_j = j * w_ratio
+            end_j = (j + 1) * w_ratio
+
+            # If there is at least one 1 in the square, set the output cell to 1
+            if np.any(input_grid[start_i:end_i, start_j:end_j] == 1):
+                output_grid[i, j] = 1
 
     return output_grid
 
 
-input_list = np.empty((WIDTH, HEIGHT))
+array = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.99, 0.01])
+print(array)
 
-for i in range(WIDTH):
-    for j in range(HEIGHT):
-        input_list[i][j] = np.random.choice([0, 1], p=[0.8, 0.2])
-
-mapped_grid = map_to_smaller(input_list, TARGET_WIDTH, TARGET_HEIGHT)
+smaller_array = map_to_smaller(array, TARG_ROWS, TARG_COLS)
+print(smaller_array)
