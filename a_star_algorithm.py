@@ -1,43 +1,123 @@
 import math
 import heapq
 
-
 class Cell:
-    def __init__(self):
-        self.parent_i = 0  # Parent cell's row index
-        self.parent_j = 0  # Parent cell's column index
-        self.f = float('inf')  # Total cost of the cell (g + h)
-        self.g = float('inf')  # Cost from start to this cell
-        self.h = 0  # Heuristic cost from this cell to destination
+    """
+    A class to represent a cell in a grid for A* pathfinding.
 
+    Attributes
+    ----------
+    parent_i : int
+        row index of the parent cell
+    parent_j : int
+        column index of the parent cell
+    f : float
+        total cost of the cell (g + h)
+    g : float
+        cost from start to this cell
+    h : float
+        heuristic cost from this cell to destination
+    """
+    def __init__(self):
+        self.parent_i = 0
+        self.parent_j = 0
+        self.f = float('inf')
+        self.g = float('inf')
+        self.h = 0
 
 # Define the size of the grid
 ROW = 9
 COL = 10
 
-
-# Check if a cell is valid (within the grid)
 def is_valid(row, col):
+    """
+    Check if a cell is valid (within the grid)
+
+    Parameters
+    ----------
+    row : int
+        row index of the cell
+    col : int
+        column index of the cell
+
+    Returns
+    -------
+    bool
+        True if the cell is within the grid, False otherwise
+    """
     return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
 
-
-# Check if a cell is unblocked
 def is_unblocked(grid, row, col):
+    """
+    Check if a cell is unblocked
+
+    Parameters
+    ----------
+    grid : list
+        2D list representing the grid
+    row : int
+        row index of the cell
+    col : int
+        column index of the cell
+
+    Returns
+    -------
+    bool
+        True if the cell is unblocked, False otherwise
+    """
     return grid[row][col] == 1
 
-
-# Check if a cell is the destination
 def is_destination(row, col, dest):
+    """
+    Check if a cell is the destination
+
+    Parameters
+    ----------
+    row : int
+        row index of the cell
+    col : int
+        column index of the cell
+    dest : tuple
+        coordinates of the destination cell
+
+    Returns
+    -------
+    bool
+        True if the cell is the destination, False otherwise
+    """
     return row == dest[0] and col == dest[1]
 
-
-# Calculate the heuristic value of a cell (Euclidean distance to destination)
 def calculate_h_value(row, col, dest):
+    """
+    Calculate the heuristic value of a cell (Euclidean distance to destination)
+
+    Parameters
+    ----------
+    row : int
+        row index of the cell
+    col : int
+        column index of the cell
+    dest : tuple
+        coordinates of the destination cell
+
+    Returns
+    -------
+    float
+        heuristic value of the cell
+    """
     return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
 
-
-# Trace the path from source to destination
 def trace_path(cell_details, dest):
+    """
+    Trace the path from source to destination
+
+    Parameters
+    ----------
+    cell_details : list
+        2D list of Cell objects representing the grid
+    dest : tuple
+        coordinates of the destination cell
+    """
     print("The Path is ")
     path = []
     row = dest[0]
@@ -61,9 +141,19 @@ def trace_path(cell_details, dest):
         print("->", i, end=" ")
     print()
 
-
-# Implement the A* search algorithm
 def a_star_search(grid, src, dest):
+    """
+    Implement the A* search algorithm
+
+    Parameters
+    ----------
+    grid : list
+        2D list representing the grid
+    src : tuple
+        coordinates of the source cell
+    dest : tuple
+        coordinates of the destination cell
+    """
     # Check if the source and destination are valid
     if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
         print("Source or destination is invalid")
@@ -149,8 +239,10 @@ def a_star_search(grid, src, dest):
     if not found_dest:
         print("Failed to find the destination cell")
 
-
 def main():
+    """
+    Main function to run the A* search algorithm
+    """
     # Define the grid (1 for unblocked, 0 for blocked)
     grid = [
         [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
@@ -170,7 +262,6 @@ def main():
 
     # Run the A* search algorithm
     a_star_search(grid, src, dest)
-
 
 if __name__ == "__main__":
     main()
