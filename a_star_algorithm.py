@@ -1,4 +1,4 @@
-import math
+import numpy as np
 import heapq
 
 class Cell:
@@ -25,11 +25,7 @@ class Cell:
         self.g = float('inf')
         self.h = 0
 
-# Define the size of the grid
-ROW = 9
-COL = 10
-
-def is_valid(row, col):
+def is_valid(row, col, ROW, COL):
     """
     Check if a cell is valid (within the grid)
 
@@ -53,8 +49,8 @@ def is_unblocked(grid, row, col):
 
     Parameters
     ----------
-    grid : list
-        2D list representing the grid
+    grid : numpy.ndarray
+        2D numpy array representing the grid
     row : int
         row index of the cell
     col : int
@@ -65,7 +61,7 @@ def is_unblocked(grid, row, col):
     bool
         True if the cell is unblocked, False otherwise
     """
-    return grid[row][col] == 1
+    return grid[row][col] == 0
 
 def is_destination(row, col, dest):
     """
@@ -117,8 +113,12 @@ def trace_path(cell_details, dest):
         2D list of Cell objects representing the grid
     dest : tuple
         coordinates of the destination cell
+
+    Returns
+    -------
+    list
+        List of tuples representing the path from source to destination
     """
-    print("The Path is ")
     path = []
     row = dest[0]
     col = dest[1]
@@ -136,10 +136,7 @@ def trace_path(cell_details, dest):
     # Reverse the path to get the path from source to destination
     path.reverse()
 
-    # Print the path
-    for i in path:
-        print("->", i, end=" ")
-    print()
+    return path
 
 def a_star_search(grid, src, dest):
     """
@@ -147,30 +144,37 @@ def a_star_search(grid, src, dest):
 
     Parameters
     ----------
-    grid : list
-        2D list representing the grid
+    grid : numpy.ndarray
+        2D numpy array representing the grid
     src : tuple
         coordinates of the source cell
     dest : tuple
         coordinates of the destination cell
+
+    Returns
+    -------
+    list
+        List of tuples representing the path from source to destination
     """
+    ROW, COL = grid.shape
+
     # Check if the source and destination are valid
-    if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
+    if not is_valid(src[0], src[1], ROW, COL) or not is_valid(dest[0], dest[1], ROW, COL):
         print("Source or destination is invalid")
-        return
+        return []
 
     # Check if the source and destination are unblocked
     if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
         print("Source or the destination is blocked")
-        return
+        return []
 
     # Check if we are already at the destination
     if is_destination(src[0], src[1], dest):
         print("We are already at the destination")
-        return
+        return [(src[0], src[1])]
 
     # Initialize the closed list (visited cells)
-    closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
+    closed_list = np.zeros((ROW, COL), dtype=bool)
     # Initialize the details of each cell
     cell_details = [[Cell() for _ in range(COL)] for _ in range(ROW)]
 
@@ -207,17 +211,15 @@ def a_star_search(grid, src, dest):
             new_j = j + dir[1]
 
             # If the successor is valid, unblocked, and not visited
-            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+            if is_valid(new_i, new_j, ROW, COL) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
                 # If the successor is the destination
                 if is_destination(new_i, new_j, dest):
                     # Set the parent of the destination cell
                     cell_details[new_i][new_j].parent_i = i
                     cell_details[new_i][new_j].parent_j = j
                     print("The destination cell is found")
-                    # Trace and print the path from source to destination
-                    trace_path(cell_details, dest)
-                    found_dest = True
-                    return
+                    # Trace and return the path from source to destination
+                    return trace_path(cell_details, dest)
                 else:
                     # Calculate the new f, g, and h values
                     g_new = cell_details[i][j].g + 1.0
@@ -238,30 +240,22 @@ def a_star_search(grid, src, dest):
     # If the destination is not found after visiting all cells
     if not found_dest:
         print("Failed to find the destination cell")
+        return []
 
-def main():
-    """
-    Main function to run the A* search algorithm
-    """
-    # Define the grid (1 for unblocked, 0 for blocked)
-    grid = [
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
-        [1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-        [1, 0, 1, 1, 1, 1, 0, 1, 0, 0],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
-    ]
+# Define the grid (1 for unblocked, 0 for blocked)
+grid = np.array([
+    [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+    [1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+    [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+    [0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 0, 1, 1, 0, 1, 0],
+    [1, 0, 1, 1, 0, 1, 0, 1, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 0, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]
+])
 
-    # Define the source and destination
-    src = [8, 0]
-    dest = [0, 0]
-
-    # Run the A* search algorithm
-    a_star_search(grid, src, dest)
-
-if __name__ == "__main__":
-    main()
+# Run the A* search algorithm
+path = a_star_search(grid, (0, 0), (8, 9))
+print("Path from source to destination:")
+print(path)
